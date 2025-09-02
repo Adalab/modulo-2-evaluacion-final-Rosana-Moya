@@ -1,27 +1,40 @@
 'use strict';
 
-console.log('>> Ready :)');
-
-// 🔗 Elementos del DOM que usaremos
+// -----------------------------
+// ELEMENTOS DEL DOM
+// -----------------------------
 const input = document.querySelector('.input-description');
 const buttonSearch = document.querySelector('.buttonSearch');
 const listContainer = document.querySelector('.container-list');
 const cartContainer = document.querySelector('.container-cart');
 
-// 🧠 Estado de la aplicación: productos y carrito
-let products = []; // Array con productos desde la API
-let cart = loadCartFromLocalStorage(); // Array con productos del carrito guardados en localStorage
+// -----------------------------
+// VARIABLES DE ESTADO
+// -----------------------------
 
-// 🔄 Función para cargar productos desde la API usando fetch y promesas (.then)
+// Array con TODOS los productos desde la API
+let products = [];
+
+// Array con los productos añadidos al carrito (subconjunto de products)
+let cart = loadCartFromLocalStorage(); // Carga carrito guardado o array vacío
+
+// -----------------------------
+// FUNCIONES
+// -----------------------------
+
+/**
+ * Carga productos desde la API y los guarda en 'products'.
+ * Luego muestra todos los productos en la lista.
+ */
 function fetchProducts() {
   fetch('https://fakestoreapi.com/products')
     .then((response) => {
-      if (!response.ok) throw new Error('Error en la carga de productos');
+      if (!response.ok) throw new Error('Error al cargar productos');
       return response.json();
     })
     .then((data) => {
-      products = [...data]; // Guardar productos en el array
-      renderClothes(products); // Mostrar todos los productos inicialmente
+      products = [...data]; // Guardamos todos los productos
+      renderClothes(products); // Pintamos la lista completa inicialmente
     })
     .catch((error) => {
       console.error(error);
@@ -29,7 +42,10 @@ function fetchProducts() {
     });
 }
 
-// 🧱 Función para mostrar productos en la lista (resultado de búsqueda o todos)
+/**
+ * Pinta en pantalla la lista de productos que recibe en el array 'items'.
+ * Cada producto muestra imagen, título, precio y botón Comprar/Eliminar según esté en carrito.
+ */
 function renderClothes(items) {
   listContainer.innerHTML = '';
 
@@ -39,15 +55,14 @@ function renderClothes(items) {
   }
 
   items.forEach((item) => {
-    // Comprobar si el producto ya está en el carrito para cambiar botón
+    // Comprobar si el producto está en el carrito
     const isInCart = cart.some((product) => product.id === item.id);
 
     const card = document.createElement('div');
     card.classList.add('item');
 
-    // Crear tarjeta con imagen, título, precio y botón comprar/eliminar
     card.innerHTML = `
-      <img src="${item.image}" alt="${item.title}" width="100" />
+      <img src="${item.image}" alt="${item.title}" />
       <h3>${item.title}</h3>
       <p>${item.price} €</p>
       <button data-id="${item.id}" class="cart-button ${isInCart ? 'in-cart' : ''}">
@@ -59,11 +74,13 @@ function renderClothes(items) {
   });
 }
 
-// 🛒 Función para mostrar el carrito con productos añadidos
+/**
+ * Pinta en pantalla el carrito con tarjetas iguales a las de la lista.
+ * Incluye botón “Eliminar todo” y botón “×” para eliminar producto individual.
+ */
 function renderCart() {
   cartContainer.innerHTML = '<h2>🛒 Carrito</h2>';
 
-  // Si el carrito está vacío, mostramos mensaje y salimos
   if (cart.length === 0) {
     cartContainer.innerHTML += '<p>Tu carrito está vacío.</p>';
     return;
@@ -72,54 +89,66 @@ function renderCart() {
   // Botón para vaciar todo el carrito
   cartContainer.innerHTML += `<button id="clear-cart" style="margin-bottom:10px;">Eliminar todo</button>`;
 
-  // Mostrar cada producto del carrito con imagen, título, precio y botón para eliminarlo individualmente
+  // Contenedor para las tarjetas con estilo grid igual que la lista
+  const cartItemsContainer = document.createElement('div');
+  cartItemsContainer.style.display = 'grid';
+  cartItemsContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
+  cartItemsContainer.style.gap = '20px';
+
   cart.forEach((item) => {
-    const productHTML = `
-      <div class="cart-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-        <img src="${item.image}" alt="${item.title}" width="40" />
-        <span>${item.title} - ${item.price}€</span>
-        <button class="remove-item" data-id="${item.id}">❌</button>
-      </div>
+    const card = document.createElement('div');
+    card.classList.add('item');
+
+    card.innerHTML = `
+      <img src="${item.image}" alt="${item.title}" />
+      <h3>${item.title}</h3>
+      <p>${item.price} €</p>
+      <button class="remove-item" data-id="${item.id}" title="Eliminar producto">×</button>
     `;
-    cartContainer.innerHTML += productHTML;
+
+    cartItemsContainer.appendChild(card);
   });
+
+  cartContainer.appendChild(cartItemsContainer);
 }
 
-// 🔍 Función para filtrar productos según texto introducido en el buscador
+/**
+ * Filtra los productos que contienen el texto buscado y muestra los resultados.
+ */
 function handleSearch() {
   const searchText = input.value.trim().toLowerCase();
 
-  // Filtrar productos por título que contenga el texto
   const filtered = products.filter((item) =>
     item.title.toLowerCase().includes(searchText)
   );
 
-  // Mostrar resultados filtrados
   renderClothes(filtered);
 }
 
-// ➕➖ Función que maneja añadir o eliminar productos del carrito, también eliminar uno solo y vaciar todo
+/**
+ * Gestiona los clics en la página para añadir/quitar productos del carrito y vaciar carrito.
+ */
 function handleCartToggle(e) {
-  // Si se pulsa un botón "Comprar"/"Eliminar" en el listado de productos
+  // Añadir o quitar producto desde la lista de productos
   if (e.target.classList.contains('cart-button')) {
     const id = parseInt(e.target.dataset.id);
     const product = products.find((p) => p.id === id);
     const inCart = cart.some((item) => item.id === id);
 
     if (inCart) {
-      // Si ya está en carrito, eliminarlo
+      // Quitar producto del carrito
       cart = cart.filter((item) => item.id !== id);
     } else {
-      // Si no está, añadirlo
+      // Añadir producto al carrito
       cart.push(product);
     }
 
-    saveCartToLocalStorage(); // Guardar cambios
-    renderClothes(products);  // Actualizar botones
-    renderCart();             // Actualizar carrito
+    saveCartToLocalStorage();
+    renderClothes(products);
+    renderCart();
   }
 
-  // Si se pulsa el botón "❌" para eliminar un producto individual del carrito
+  // Eliminar producto individual del carrito con el botón "×"
   if (e.target.classList.contains('remove-item')) {
     const id = parseInt(e.target.dataset.id);
     cart = cart.filter((item) => item.id !== id);
@@ -128,7 +157,7 @@ function handleCartToggle(e) {
     renderCart();
   }
 
-  // Si se pulsa el botón "Eliminar todo" para vaciar el carrito entero
+  // Vaciar todo el carrito con botón "Eliminar todo"
   if (e.target.id === 'clear-cart') {
     cart = [];
     saveCartToLocalStorage();
@@ -137,21 +166,37 @@ function handleCartToggle(e) {
   }
 }
 
-// 💾 Guardar carrito en localStorage (como string JSON)
+/**
+ * Guarda el array 'cart' en localStorage como JSON string.
+ */
 function saveCartToLocalStorage() {
   localStorage.setItem('cart', JSON.stringify(cart));
 }
 
-// 📤 Cargar carrito desde localStorage y devolver array (si no hay nada devuelve array vacío)
+/**
+ * Carga carrito desde localStorage o devuelve array vacío si no hay nada.
+ */
 function loadCartFromLocalStorage() {
   const stored = localStorage.getItem('cart');
   return stored ? JSON.parse(stored) : [];
 }
 
-// 📌 Añadir event listeners a botones y elementos
-buttonSearch.addEventListener('click', handleSearch);
-document.addEventListener('click', handleCartToggle); // Delegación para todos los botones dinámicos
+// -----------------------------
+// EVENTOS
+// -----------------------------
 
-// 🚀 Iniciar aplicación cargando productos y mostrando carrito guardado
+// Buscar productos al hacer click en botón buscar
+buttonSearch.addEventListener('click', handleSearch);
+
+// Escuchar clicks para añadir/quitar productos y limpiar carrito
+document.addEventListener('click', handleCartToggle);
+
+// -----------------------------
+// INICIO DE LA APP
+// -----------------------------
+
 fetchProducts();
 renderCart();
+
+
+
