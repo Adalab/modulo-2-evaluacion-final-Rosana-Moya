@@ -11,22 +11,26 @@
 
   <body>
 
-    <header>
-      <h1>Tienda Rosana</h1>
-    </header>
+  <header>
+    <h1>Tienda Rosana</h1>
+  </header>
 
-    <div class="container-search">
-        <input class="input-description" type="text" placeholder="Ejemplo: Women">
-        <button class="buttonSearch">Buscar</button>
-   </div>
+  <main class="main-container">
 
-   <div class="container-cart">
-        <img src="..." alt="..." width="50">
-   </div>
+    <section class="search-section">
+      <input class="input-description" type="text" placeholder="Ejemplo: Women" />
+      <button class="buttonSearch">Buscar</button>
+    </section>
 
-   <div class="container-list">
+    <div class="content-wrapper" style="display: flex; gap: 30px; align-items: flex-start;">
 
-   </div>
+      <aside class="container-cart"></aside>
+
+      <section class="container-list"></section>
+
+    </div>
+
+  </main>
 
     <script src="./js/main.js"></script>
   </body>
