@@ -1,4 +1,4 @@
-/* Estilos generales */
+
 body {
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   padding: 20px;
@@ -38,7 +38,7 @@ button {
   font-size: 16px;
 }
 
-/* Layout principal */
+
 .content-wrapper {
   display: flex;
   gap: 30px;
@@ -46,14 +46,14 @@ button {
   flex-wrap: wrap;
 }
 
-/* Carrito */
+
 .container-cart {
   width: 100%;
   max-width: 250px;
   flex-shrink: 0;
 }
 
-/* Listado de productos */
+
 .container-list {
   flex: 1;
   display: flex;
@@ -61,9 +61,9 @@ button {
   gap: 20px;
 }
 
-/* Tarjetas de producto */
+
 .item {
-  width: calc(25% - 20px); /* 4 columnas */
+  width: calc(25% - 20px); 
   min-width: 180px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -81,7 +81,7 @@ button {
   object-fit: contain;
 }
 
-/* Botones */
+
 .cart-button,
 .remove-item,
 .clear-cart {
@@ -99,7 +99,7 @@ button {
   background-color: red;
 }
 
-/* Botón X en carrito */
+
 .remove-item {
   position: absolute;
   top: 5px;
@@ -108,18 +108,16 @@ button {
   font-weight: bold;
 }
 
-/* Producto en el carrito resaltado */
+
 .item.in-cart {
   background-color: #dfa7eb;
   border-color: #3c013d;
 }
 
-/* --------------------
-   Responsive Styles
---------------------- */
+
 @media screen and (max-width: 900px) {
   .item {
-    width: calc(33.33% - 20px); /* 3 columnas */
+    width: calc(33.33% - 20px); 
   }
 }
 
@@ -133,13 +131,13 @@ button {
   }
 
   .item {
-    width: calc(50% - 20px); /* 2 columnas */
+    width: calc(50% - 20px); 
   }
 }
 
 @media screen and (max-width: 400px) {
   .item {
-    width: 100%; /* 1 columna */
+    width: 100%; 
   }
 
   input,
